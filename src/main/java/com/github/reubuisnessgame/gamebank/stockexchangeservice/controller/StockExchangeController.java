@@ -41,6 +41,8 @@ public class StockExchangeController {
         try {
             stockExchangeDAO.changeSharePrice(form.getCompanyId(), form.getChangingPrice());
             return ResponseEntity.ok(newsDAO.createNews(form.getHeading(), form.getArticle()));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/change"));
         } catch (Exception e) {
@@ -54,10 +56,12 @@ public class StockExchangeController {
                                             @RequestParam(value = "count") long count) {
         try {
             return ResponseEntity.ok(stockExchangeDAO.changeSharesCount(companyName, count));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/change"));
+            return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/change_count"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new ExceptionModel(500, "Internal Error", e.getMessage(), "/stock/change"));
+            return ResponseEntity.status(500).body(new ExceptionModel(500, "Internal Error", e.getMessage(), "/stock/change_count"));
         }
     }
 
@@ -66,6 +70,8 @@ public class StockExchangeController {
     public ResponseEntity buyShares(@PathVariable Long number, @RequestParam int count, @RequestParam String companyName) {
         try {
             return ResponseEntity.ok(stockExchangeDAO.buyShares(number, count, companyName));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/buy" + number));
         } catch (Exception e) {
@@ -78,6 +84,8 @@ public class StockExchangeController {
     public ResponseEntity sellShares(@PathVariable Long number, @RequestParam int count, @RequestParam String companyName) {
         try {
             return ResponseEntity.ok(stockExchangeDAO.sellShares(number, count, companyName));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
         } catch (UsernameNotFoundException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/sell/" + number));
         } catch (Exception e) {
@@ -87,7 +95,7 @@ public class StockExchangeController {
 
     @PreAuthorize("hasAuthority('MODERATOR') or hasAuthority('EXCHANGE_WORKER') or hasAuthority('TEAM')")
     @RequestMapping(value = "/changes/{companyName}", method = RequestMethod.GET)
-    public ResponseEntity sellShares(@PathVariable String companyName) {
+    public ResponseEntity getChangingPrice(@PathVariable String companyName) {
         try {
             return ResponseEntity.ok(stockExchangeDAO.getChangingPrise(companyName));
         } catch (UsernameNotFoundException e) {

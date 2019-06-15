@@ -56,35 +56,44 @@ public class StockExchangeDAO {
                 new CompanyModel(sharePrice, companyName, fullCount)));
     }
 
-    public CompanyModel changeSharesCount(String companyName, long count){
-        CompanyModel companyModel = companyRepository.findByCompanyName(companyName).orElseThrow(() ->
-                new UsernameNotFoundException("Company with name " + companyName + "not found"));
-        long freeCount = companyModel.getFreeCount();
-        if(count < 0 && -count > freeCount){
-            count = freeCount;
+    public CompanyModel changeSharesCount(String companyName, long count) throws IllegalAccessException {
+        if (isGameStarted) {
+            CompanyModel companyModel = companyRepository.findByCompanyName(companyName).orElseThrow(() ->
+                    new UsernameNotFoundException("Company with name " + companyName + "not found"));
+            long freeCount = companyModel.getFreeCount();
+            if (count < 0 && -count > freeCount) {
+                count = freeCount;
+            }
+            return calculateNewSharePrice(count, companyModel);
         }
-        return calculateNewSharePrice(count, companyModel);
+        throw new IllegalAccessException("The game has not started yet");
     }
 
-    public void changeSharePrice(long companyId, double changingPrice) {
-        Thread t = new Thread(new ChangingWorkerRunnable(companyId, changingPrice));
-        t.start();
+    public void changeSharePrice(long companyId, double changingPrice) throws IllegalAccessException {
+        if (isGameStarted) {
+            Thread t = new Thread(new ChangingWorkerRunnable(companyId, changingPrice));
+            t.start();
+        }
+        throw new IllegalAccessException("The game has not started yet");
     }
 
-    public Iterable<ShareModel> buyShares(long number, int count, String companyName) {
-        TeamModel teamModel = repositoryComponent.getTeamByNumber(number);
-        CompanyModel companyModel = companyRepository.findByCompanyName(companyName).orElseThrow(() ->
-                new UsernameNotFoundException("Company with name " + companyName + "not found"));
-        double fullPrice = count * companyModel.getSharePrice();
-        if (fullPrice < teamModel.getScore()) {
-            count = (int) (teamModel.getScore() / companyModel.getSharePrice());
-            fullPrice = count * companyModel.getSharePrice();
+    public Iterable<ShareModel> buyShares(long number, int count, String companyName) throws IllegalAccessException {
+        if (isGameStarted) {
+            TeamModel teamModel = repositoryComponent.getTeamByNumber(number);
+            CompanyModel companyModel = companyRepository.findByCompanyName(companyName).orElseThrow(() ->
+                    new UsernameNotFoundException("Company with name " + companyName + "not found"));
+            double fullPrice = count * companyModel.getSharePrice();
+            if (fullPrice < teamModel.getScore()) {
+                count = (int) (teamModel.getScore() / companyModel.getSharePrice());
+                fullPrice = count * companyModel.getSharePrice();
+            }
+            calculateNewSharePrice(count, companyModel);
+            teamModel.setScore(teamModel.getScore() - fullPrice);
+            repositoryComponent.saveTeam(teamModel);
+            shareRepository.save(new ShareModel(teamModel.getId(), companyModel.getId(), count, companyModel));
+            return shareRepository.findAllByUserId(teamModel.getId());
         }
-        calculateNewSharePrice(count, companyModel);
-        teamModel.setScore(teamModel.getScore() - fullPrice);
-        repositoryComponent.saveTeam(teamModel);
-        shareRepository.save(new ShareModel(teamModel.getId(), companyModel.getId(), count, companyModel));
-        return shareRepository.findAllByUserId(teamModel.getId());
+        throw new IllegalAccessException("The game has not started yet");
     }
 
     private CompanyModel calculateNewSharePrice(long count, CompanyModel companyModel) {
@@ -93,24 +102,28 @@ public class StockExchangeDAO {
         lastPrice *= 1 + (companyModel.getFreeCount() + count) / companyModel.getFullCount();
         companyModel.setFreeCount(companyModel.getFreeCount() + count);
         companyModel.setSharePrice(lastPrice);
+        changingPriceRepository.save(new ChangingPriceModel(companyModel.getId(), lastPrice, simpleDateFormat.format(new Date())));
         return companyRepository.save(companyModel);
     }
 
-    public Iterable<ShareModel> sellShares(long number, int count, String companyName) {
-        TeamModel teamModel = repositoryComponent.getTeamByNumber(number);
-        CompanyModel companyModel = companyRepository.findByCompanyName(companyName).orElseThrow(() ->
-                new UsernameNotFoundException("Company with name " + companyName + "not found"));
-        ShareModel shareModel = shareRepository.findByCompanyIdAndUserId(companyModel.getId(), teamModel.getId()).orElseThrow(()
-                -> new IllegalArgumentException("Not found shares"));
-        if (count >= shareModel.getSharesNumbers()) {
-            count = (int) shareModel.getSharesNumbers();
-            shareRepository.deleteByCompanyIdAndUserId(companyModel.getId(), teamModel.getId());
-        } else {
-            shareModel.setSharesNumbers(shareModel.getSharesNumbers() - count);
-            shareRepository.save(shareModel);
+    public Iterable<ShareModel> sellShares(long number, int count, String companyName) throws IllegalAccessException {
+        if(isGameStarted) {
+            TeamModel teamModel = repositoryComponent.getTeamByNumber(number);
+            CompanyModel companyModel = companyRepository.findByCompanyName(companyName).orElseThrow(() ->
+                    new UsernameNotFoundException("Company with name " + companyName + "not found"));
+            ShareModel shareModel = shareRepository.findByCompanyIdAndUserId(companyModel.getId(), teamModel.getId()).orElseThrow(()
+                    -> new IllegalArgumentException("Not found shares"));
+            if (count >= shareModel.getSharesNumbers()) {
+                count = shareModel.getSharesNumbers();
+                shareRepository.deleteByCompanyIdAndUserId(companyModel.getId(), teamModel.getId());
+            } else {
+                shareModel.setSharesNumbers(shareModel.getSharesNumbers() - count);
+                shareRepository.save(shareModel);
+            }
+            calculateNewSharePrice(-count, companyModel);
+            return shareRepository.findAllByUserId(teamModel.getId());
         }
-        calculateNewSharePrice(-count, companyModel);
-        return shareRepository.findAllByUserId(teamModel.getId());
+        throw new IllegalAccessException("The game has not started yet");
     }
 
     public Iterable<CompanyModel> getAllCompanies() throws NotFoundException {
