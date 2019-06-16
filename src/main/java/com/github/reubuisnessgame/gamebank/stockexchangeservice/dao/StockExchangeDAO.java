@@ -100,6 +100,7 @@ public class StockExchangeDAO {
         double lastPrice = companyModel.getSharePrice();
         lastPrice /= 1 + companyModel.getFreeCount() / companyModel.getFullCount();
         lastPrice *= 1 + (companyModel.getFreeCount() + count) / companyModel.getFullCount();
+        lastPrice = Math.round(lastPrice * 100000.0)/ 100000.0;
         companyModel.setFreeCount(companyModel.getFreeCount() + count);
         companyModel.setSharePrice(lastPrice);
         changingPriceRepository.save(new ChangingPriceModel(companyModel.getId(), lastPrice, simpleDateFormat.format(new Date())));

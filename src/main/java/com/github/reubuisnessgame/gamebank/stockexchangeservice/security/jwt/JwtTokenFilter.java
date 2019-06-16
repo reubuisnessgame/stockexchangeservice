@@ -1,7 +1,6 @@
 package com.github.reubuisnessgame.gamebank.stockexchangeservice.security.jwt;
 
-
-import com.github.senyast4745.gamebank.model.ExceptionModel;
+import com.github.reubuisnessgame.gamebank.stockexchangeservice.model.ExceptionModel;
 import com.google.common.annotations.Beta;
 import com.google.gson.Gson;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +20,7 @@ public class JwtTokenFilter extends GenericFilterBean {
 
     private JwtTokenProvider jwtTokenProvider;
 
-    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
+    JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 

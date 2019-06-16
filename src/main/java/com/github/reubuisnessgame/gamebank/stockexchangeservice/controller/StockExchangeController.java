@@ -106,7 +106,7 @@ public class StockExchangeController {
     }
 
     @PreAuthorize("hasAuthority('MODERATOR') or hasAuthority('EXCHANGE_WORKER') or hasAuthority('TEAM')")
-    @RequestMapping(value = "/companies}", method = RequestMethod.GET)
+    @RequestMapping(value = "/companies", method = RequestMethod.GET)
     public ResponseEntity getAllCompanies() {
         try {
             return ResponseEntity.ok(stockExchangeDAO.getAllCompanies());
@@ -118,7 +118,7 @@ public class StockExchangeController {
     }
 
     @PreAuthorize("hasAuthority('MODERATOR') or hasAuthority('EXCHANGE_WORKER')")
-    @RequestMapping(value = "/shares}", method = RequestMethod.GET)
+    @RequestMapping(value = "/shares", method = RequestMethod.GET)
     public ResponseEntity getAllShares() {
         try {
             return ResponseEntity.ok(stockExchangeDAO.getAllShares());
@@ -130,7 +130,7 @@ public class StockExchangeController {
     }
 
     @PreAuthorize("hasAuthority('MODERATOR') or hasAuthority('EXCHANGE_WORKER') or hasAuthority('TEAM')")
-    @RequestMapping(value = "/news}", method = RequestMethod.GET)
+    @RequestMapping(value = "/news", method = RequestMethod.GET)
     public ResponseEntity getAllNews() {
         try {
             return ResponseEntity.ok(newsDAO.getAllNews());

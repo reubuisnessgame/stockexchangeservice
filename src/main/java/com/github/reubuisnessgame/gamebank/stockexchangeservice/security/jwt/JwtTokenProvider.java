@@ -1,10 +1,9 @@
 package com.github.reubuisnessgame.gamebank.stockexchangeservice.security.jwt;
 
-import com.github.senyast4745.gamebank.model.UserModel;
-import com.github.senyast4745.gamebank.repository.UserRepository;
-import com.github.senyast4745.gamebank.secutity.CustomUserDetailsService;
+import com.github.reubuisnessgame.gamebank.stockexchangeservice.model.UserModel;
+import com.github.reubuisnessgame.gamebank.stockexchangeservice.repository.UserRepository;
+import com.github.reubuisnessgame.gamebank.stockexchangeservice.security.CustomUserDetailsService;
 import io.jsonwebtoken.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,7 +15,6 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Properties;
 
 @Component
 public class JwtTokenProvider {
@@ -34,16 +32,15 @@ public class JwtTokenProvider {
 
     private final UserRepository userRepository;
 
-    @Autowired
     public JwtTokenProvider(CustomUserDetailsService userDetailsService, UserRepository userRepository) {
         this.userDetailsService = userDetailsService;
+
         this.userRepository = userRepository;
     }
 
     @PostConstruct
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-
     }
 
     public String createToken(String username, String role) {
@@ -82,7 +79,7 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public Jws<Claims> getClaims(String token) {
+    private Jws<Claims> getClaims(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
     }
 
