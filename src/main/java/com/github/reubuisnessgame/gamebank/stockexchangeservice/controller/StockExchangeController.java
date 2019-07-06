@@ -39,15 +39,16 @@ public class StockExchangeController {
     @RequestMapping(value = "/change", method = RequestMethod.POST)
     public ResponseEntity changeSharePrice(@RequestBody NewNewsForm form) {
         try {
+
             stockExchangeDAO.changeSharePrice(form.getCompanyId(), form.getChangingPrice());
             return ResponseEntity.ok(newsDAO.createNews(form.getHeading(), form.getArticle()));
         } catch (IllegalAccessException e) {
-            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/stock/change"));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/change"));
-        } catch (Exception e) {
+        } /*catch (Exception e) {
             return ResponseEntity.status(500).body(new ExceptionModel(500, "Internal Error", e.getMessage(), "/stock/change"));
-        }
+        }*/
     }
 
     @PreAuthorize("hasAuthority('MODERATOR') or hasAuthority('EXCHANGE_WORKER')")
@@ -57,7 +58,7 @@ public class StockExchangeController {
         try {
             return ResponseEntity.ok(stockExchangeDAO.changeSharesCount(companyName, count));
         } catch (IllegalAccessException e) {
-            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/stock/change_count"));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/change_count"));
         } catch (Exception e) {
@@ -71,7 +72,7 @@ public class StockExchangeController {
         try {
             return ResponseEntity.ok(stockExchangeDAO.buyShares(number, count, companyName));
         } catch (IllegalAccessException e) {
-            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/stock/buy" + number));
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/buy" + number));
         } catch (Exception e) {
@@ -85,7 +86,7 @@ public class StockExchangeController {
         try {
             return ResponseEntity.ok(stockExchangeDAO.sellShares(number, count, companyName));
         } catch (IllegalAccessException e) {
-            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/team/rpl_credit"));
+            return ResponseEntity.status(403).body(new ExceptionModel(403, "Forbidden", e.getMessage(), "/stock/sell" + number));
         } catch (UsernameNotFoundException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ExceptionModel(400, "Bad Request", e.getMessage(), "/stock/sell/" + number));
         } catch (Exception e) {
@@ -159,8 +160,9 @@ public class StockExchangeController {
     public @ResponseBody
     ResponseEntity startGame(@RequestBody StartGameForm form) {
         try {
+
             stockExchangeDAO.stopStartGame(form.isStated());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(form.isStated());
         } catch (Throwable t) {
             return ResponseEntity.status(500).body(new ExceptionModel(500, "Internal Error", t.getMessage(), "/admin/start"));
         }
@@ -172,6 +174,7 @@ public class StockExchangeController {
     public @ResponseBody
     ResponseEntity clearAll() {
         try {
+
             stockExchangeDAO.clearAll();
             newsDAO.clearAll();
             return ResponseEntity.ok().build();

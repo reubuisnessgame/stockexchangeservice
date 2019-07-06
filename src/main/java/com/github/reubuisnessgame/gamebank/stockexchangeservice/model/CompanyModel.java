@@ -14,6 +14,9 @@ public class CompanyModel {
     @Column(name = "share_price")
     private Double sharePrice;
 
+    @Column(name = "stable_price")
+    private double stablePrice;
+
     @Column(name = "company_name", unique = true, nullable = false)
     private String companyName;
 
@@ -28,6 +31,7 @@ public class CompanyModel {
 
     public CompanyModel(Double sharePrice, String companyName, long fullCount) {
         this.sharePrice = sharePrice;
+        stablePrice = sharePrice;
         this.companyName = companyName;
         this.fullCount = fullCount;
         freeCount = fullCount;
@@ -37,16 +41,20 @@ public class CompanyModel {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Double getSharePrice() {
         return sharePrice;
     }
 
     public void setSharePrice(Double sharePrice) {
         this.sharePrice = sharePrice;
+    }
+
+    public double getStablePrice() {
+        return stablePrice;
+    }
+
+    public void setStablePrice(double stablePrice) {
+        this.stablePrice = stablePrice;
     }
 
     public String getCompanyName() {
