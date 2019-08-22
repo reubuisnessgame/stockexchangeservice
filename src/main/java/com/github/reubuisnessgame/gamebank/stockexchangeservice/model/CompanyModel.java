@@ -14,6 +14,7 @@ public class CompanyModel {
     @Column(name = "share_price")
     private Double sharePrice;
 
+    //Json Ignore
     @Column(name = "stable_price")
     private double stablePrice;
 
