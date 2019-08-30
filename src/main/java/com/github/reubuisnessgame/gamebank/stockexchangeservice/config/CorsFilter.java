@@ -1,4 +1,3 @@
-/*
 package com.github.reubuisnessgame.gamebank.stockexchangeservice.config;
 
 import org.springframework.core.Ordered;
@@ -29,4 +28,3 @@ public class CorsFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-*/

@@ -48,8 +48,8 @@ public class StockExchangeDAO {
         this.shareRepository = shareRepository;
         this.companyRepository = companyRepository;
         this.changingPriceRepository = changingPriceRepository;
-        ChangingRandomPriceThread priceThread = new ChangingRandomPriceThread();
-        priceThread.start();
+        /*ChangingRandomPriceThread priceThread = new ChangingRandomPriceThread();
+        priceThread.start();*/
         this.repositoryComponent = repositoryComponent;
     }
 
@@ -201,16 +201,20 @@ public class StockExchangeDAO {
         isGameStarted = gameStarted;
     }
 
-    private synchronized double recalculateNewPrice(CompanyModel model, long count){
+/*    private synchronized double recalculateNewPrice(CompanyModel model, long count){
         double stablePrice = model.getStablePrice();
         return stablePrice * (2 - ((double)model.getFreeCount()- count)/model.getFullCount());
+    }*/
+
+    private double recalculateNewPrice(CompanyModel model, long count){
+        return model.getStablePrice();
     }
 
     private double recalculateNewPrice(CompanyModel model){
         return  recalculateNewPrice(model, 0);
     }
 
-    private class ChangingRandomPriceThread extends Thread {
+   /* private class ChangingRandomPriceThread extends Thread {
         public void run() {
             try {
                 //noinspection InfiniteLoopStatement
@@ -250,7 +254,7 @@ public class StockExchangeDAO {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
-    }
+    }*/
 
     private class ChangingWorkerRunnable implements Runnable {
 
